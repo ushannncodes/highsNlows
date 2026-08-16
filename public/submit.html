@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Highs &amp; Lows — HOL Community Day</title>
+<link rel="stylesheet" href="/style.css" />
+<link rel="stylesheet" href="/submit.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="head">
+      <div class="eyebrow">HOL Community Day</div>
+      <h1>Your year,<br />in two moments.</h1>
+      <p class="sub">Think back over the last 12 months. One high. One low. Three words each.</p>
+    </header>
+
+    <form id="form">
+      <section class="card card--gold">
+        <div class="card-label">Highlight</div>
+        <label class="field">
+          <span>When</span>
+          <select name="highlight-month" id="highlight-month" required></select>
+        </label>
+        <label class="field">
+          <span>What (max 3 words)</span>
+          <input type="text" id="highlight-text" placeholder="e.g. got promoted" autocomplete="off" required />
+        </label>
+      </section>
+
+      <section class="card card--violet">
+        <div class="card-label">Lowlight</div>
+        <label class="field">
+          <span>When</span>
+          <select name="lowlight-month" id="lowlight-month" required></select>
+        </label>
+        <label class="field">
+          <span>What (max 3 words)</span>
+          <input type="text" id="lowlight-text" placeholder="e.g. lost my job" autocomplete="off" required />
+        </label>
+      </section>
+
+      <button type="submit" id="submit-btn">Submit</button>
+      <p class="err" id="err"></p>
+    </form>
+
+    <div class="done" id="done" hidden>
+      <div class="done-mark">✓</div>
+      <p>Thanks. Look up at the screen.</p>
+    </div>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/submit.js"></script>
+</body>
+</html>

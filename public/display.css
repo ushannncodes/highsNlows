@@ -1,0 +1,248 @@
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.topstrip {
+  flex-shrink: 0;
+  background: var(--teal-dark);
+  color: #fdfaf3;
+  padding: 10px 5vw;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+}
+
+.topstrip-counts b {
+  font-weight: 700;
+}
+
+.live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 3px rgba(243, 214, 90, 0.35);
+  margin-right: 2px;
+}
+
+.stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 3vh 5vw 3vh;
+}
+
+.headline {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--ink-strong);
+}
+
+.timeline {
+  position: relative;
+  flex: 1;
+  margin-top: 2vh;
+  cursor: zoom-in; /* fallback until display.js swaps in the 🔎 emoji cursor */
+}
+
+.axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 0;
+  border-top: 2px dashed var(--dash-soft);
+}
+
+.ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+}
+
+.tick {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.tick::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  width: 0;
+  height: 10px;
+  border-left: 2px dashed var(--dash-soft);
+  transform: translateX(-50%);
+}
+
+.tick-label {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+.dots {
+  position: absolute;
+  inset: 0;
+}
+
+.entry {
+  position: absolute;
+  transform: translate(-50%, -50%) scale(0.4);
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease;
+  z-index: 1;
+  cursor: inherit;
+}
+
+.entry.in {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+.entry:hover {
+  z-index: 50;
+  transform: translate(-50%, -50%) scale(1.6);
+  transition: transform 0.18s ease-out, opacity 0.18s ease-out;
+}
+
+.entry .dot {
+  position: relative;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.entry .dot::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 1.5px dashed currentColor;
+  opacity: 0.45;
+}
+
+.entry .label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-strong);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  opacity: 1;
+  transition: opacity 1.2s ease, background 0.15s ease;
+  padding: 2px 4px;
+  border-radius: 6px;
+}
+
+.entry.settled .label {
+  opacity: 0;
+}
+
+.entry.settled .dot::after {
+  opacity: 0.25;
+}
+
+.entry.settled .dot {
+  box-shadow: none;
+}
+
+/* Reveal on hover, with a translucent paper chip behind the text so it stays
+   legible even when it lands on top of other dots or a crowded month. */
+.entry:hover .label {
+  opacity: 1;
+  background: rgba(245, 246, 248, 0.7);
+  box-shadow: 0 0 0 8px rgba(245, 246, 248, 0.7);
+}
+
+/* Dwell focus mode: hovering one dot for >1s dims everything else and pulls
+   that person's other entry (highlight <-> lowlight) out of hiding too. Placed
+   after the .settled/.hover label rules so it wins their specificity ties. */
+.dots.focus-active .entry {
+  opacity: 0.12;
+  transition: opacity 0.35s ease, transform 0.18s ease-out;
+}
+
+.dots.focus-active .entry.is-focused,
+.dots.focus-active .entry.is-twin {
+  opacity: 1;
+}
+
+.entry.is-twin,
+.entry.is-focused {
+  z-index: 40;
+}
+
+.entry.is-twin .label,
+.entry.is-focused .label {
+  opacity: 1;
+  background: rgba(245, 246, 248, 0.7);
+  box-shadow: 0 0 0 8px rgba(245, 246, 248, 0.7);
+}
+
+.entry.is-twin .dot::after,
+.entry.is-focused .dot::after {
+  opacity: 0.9;
+}
+
+.dot--gold {
+  background: var(--highlight);
+  color: var(--highlight);
+  box-shadow: 0 0 10px rgba(198, 193, 19, 0.4);
+}
+
+.dot--violet {
+  background: var(--lowlight);
+  color: var(--lowlight);
+  box-shadow: 0 0 10px rgba(51, 103, 107, 0.35);
+}
+
+.legend {
+  flex-shrink: 0;
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  margin-top: 2vh;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-item .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}

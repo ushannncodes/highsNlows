@@ -1,0 +1,42 @@
+@import url("https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Open+Sans:wght@400;600;700&display=swap");
+
+:root {
+  /* Palette sourced from brand guide */
+  --bg: #f5f6f8;
+  --paper: #f4f7f7;
+  --tan: #dee1d8;
+  --ink: #545454;
+  --ink-strong: #2a2a27;
+  --teal-dark: #33676b;
+  --teal-light: #80aaae;
+  --olive: #67803f;
+  --olive-2: #5c913b;
+  --mustard: #c6c113;
+  --gold: #f3d65a;
+
+  /* Semantic */
+  --fg: var(--ink-strong);
+  --muted: var(--ink);
+  --line: rgba(42, 42, 39, 0.55);
+  --dash-soft: rgba(42, 42, 39, 0.22);
+  --highlight: var(--mustard);
+  --highlight-glow: var(--gold);
+  --lowlight: var(--teal-dark);
+  --lowlight-glow: var(--teal-light);
+
+  --font: "Open Sans", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Kalam", "Comic Sans MS", var(--font);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+}

@@ -1,0 +1,16 @@
+{
+  "name": "hol-year-wheel",
+  "version": "1.0.0",
+  "description": "Live highs & lows timeline for HOL Community Day",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5"
+  }
+}

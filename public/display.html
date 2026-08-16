@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Highs &amp; Lows — Live</title>
+<link rel="stylesheet" href="/style.css" />
+<link rel="stylesheet" href="/display.css" />
+</head>
+<body>
+  <header class="topstrip">
+    <span class="topstrip-counts">
+      <b id="count-highlight">0</b> highlights &nbsp;·&nbsp; <b id="count-lowlight">0</b> lowlights &nbsp;·&nbsp; <span class="live-dot"></span> live
+    </span>
+  </header>
+
+  <div class="stage">
+    <div class="headline">A year of highs &amp; lows</div>
+
+    <div class="timeline" id="timeline">
+      <div class="axis"></div>
+      <div class="ticks" id="ticks"></div>
+      <div class="dots" id="dots"></div>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><i class="dot dot--gold"></i>Highlight</span>
+      <span class="legend-item"><i class="dot dot--violet"></i>Lowlight</span>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/display.js"></script>
+</body>
+</html>
