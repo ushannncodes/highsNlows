@@ -35,11 +35,11 @@ environment variable on your host.
 
 ## Deploy (Render, free tier, supports WebSockets)
 
-1. Push this folder to a new GitHub repo.
+1. Push this folder to [github.com/ushannncodes/highsNlows](https://github.com/ushannncodes/highsNlows).
 2. On [render.com](https://render.com), New → Web Service → connect the repo.
 3. Build command: `npm install`. Start command: `npm start`.
 4. Add an environment variable `ADMIN_KEY` set to something private.
-5. Deploy. Render gives you a public URL like `https://hol-year-wheel.onrender.com`.
+5. Deploy. Render gives you a public URL like `https://highsnlows.onrender.com`.
 6. Generate a QR code pointing at that URL (root `/`) for attendees, and open
    `/display` on the laptop connected to the venue screen.
 
