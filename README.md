@@ -21,6 +21,16 @@ npm start
 Then open `http://localhost:3000` for the form and `http://localhost:3000/display`
 for the big screen.
 
+## Populate with fake data
+
+To see the display filled in without waiting for real submissions (40 fake
+respondents, 80 entries, spread across the rolling 12-month window):
+
+```bash
+npm run seed                                            # targets http://localhost:3000
+BASE_URL=https://highsnlows.onrender.com npm run seed   # targets the live site
+```
+
 ## Before the event: clear test data
 
 While rehearsing you'll create test submissions. Wipe them right before doors
