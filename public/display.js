@@ -55,6 +55,7 @@ const LABEL_MARGIN = 14; // px required between two labels sharing a lane before
 let months = [];
 const stacks = new Map(); // key -> count
 const byPerson = new Map(); // personId -> { highlight: el, lowlight: el }
+const renderedIds = new Set(); // entry ids already on screen or queued — guards against dupes on reconnect
 let counts = { highlight: 0, lowlight: 0 };
 let showAll = false;
 
@@ -85,6 +86,7 @@ function addEntry(entry, animate) {
   const idx = months.findIndex((m) => m.month === entry.month && m.year === entry.year);
   if (idx === -1) return;
 
+  renderedIds.add(entry.id);
   const xPct = ((idx + 0.5) / months.length) * 100;
   const key = `${entry.type}-${monthKey(entry.month, entry.year)}`;
   const stackIndex = stacks.get(key) || 0;
@@ -213,6 +215,8 @@ const arrivalQueue = [];
 let arrivalTimer = null;
 
 function enqueueEntry(entry) {
+  if (renderedIds.has(entry.id)) return; // already on screen or queued — avoid a dupe on reconnect
+  renderedIds.add(entry.id);
   arrivalQueue.push(entry);
   if (arrivalTimer) return;
   arrivalTimer = setInterval(() => {
@@ -235,6 +239,7 @@ function clearAll() {
   dotsEl.innerHTML = '';
   stacks.clear();
   byPerson.clear();
+  renderedIds.clear();
   counts = { highlight: 0, lowlight: 0 };
   countHighlightEl.textContent = '0';
   countLowlightEl.textContent = '0';
@@ -310,16 +315,27 @@ resetBtn.addEventListener('click', async () => {
   }
 });
 
+// Catches the display up on anything it missed — used both for the initial
+// load and every time the socket reconnects (dropped WiFi, laptop sleep, a
+// server restart). Without this, a connection blip would silently drop
+// whichever submissions happened during the gap, with no way to notice.
+async function reconcile() {
+  try {
+    const remoteEntries = await fetch('/api/entries').then((r) => r.json());
+    remoteEntries.forEach((entry) => {
+      if (!renderedIds.has(entry.id)) addEntry(entry, false);
+    });
+  } catch (e) {
+    // network hiccup during reconcile — the next 'connect' event will retry
+  }
+}
+
 async function init() {
-  const [monthsRes, entriesRes] = await Promise.all([
-    fetch('/api/months').then((r) => r.json()),
-    fetch('/api/entries').then((r) => r.json()),
-  ]);
-  months = monthsRes;
+  months = await fetch('/api/months').then((r) => r.json());
   renderTicks();
-  entriesRes.forEach((entry) => addEntry(entry, false));
 
   const socket = io();
+  socket.on('connect', () => reconcile()); // fires on first connect AND every reconnect
   socket.on('submission', (entry) => enqueueEntry(entry));
   socket.on('reset', () => clearAll());
 }
