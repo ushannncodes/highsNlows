@@ -286,6 +286,30 @@ dotsEl.addEventListener('mouseout', (e) => {
   if (focusedEl === entryEl) deactivateFocus();
 });
 
+// Reset requires the admin key (same one used via curl) — asked for on click
+// rather than baked into the page, since this page's source is publicly
+// viewable and anyone could otherwise wipe the board mid-event.
+const resetBtn = document.getElementById('reset-btn');
+resetBtn.addEventListener('click', async () => {
+  if (!confirm('Clear all submissions from the board? This cannot be undone.')) return;
+  const key = prompt('Admin key:');
+  if (!key) return;
+
+  resetBtn.disabled = true;
+  try {
+    const res = await fetch(`/api/reset?key=${encodeURIComponent(key)}`, { method: 'POST' });
+    if (!res.ok) {
+      alert(res.status === 403 ? 'Wrong admin key.' : 'Reset failed.');
+    }
+    // On success the server broadcasts a 'reset' socket event, which this
+    // same page also receives — clearAll() runs from that, not from here.
+  } catch (e) {
+    alert('Reset failed — check your connection.');
+  } finally {
+    resetBtn.disabled = false;
+  }
+});
+
 async function init() {
   const [monthsRes, entriesRes] = await Promise.all([
     fetch('/api/months').then((r) => r.json()),
