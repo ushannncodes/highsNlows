@@ -186,9 +186,6 @@ body {
   position: absolute;
   transform: translate(-50%, -50%) scale(0.4);
   opacity: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease,
     top 0.4s ease;
   z-index: 1;
@@ -208,10 +205,10 @@ body {
 
 .entry .dot {
   position: relative;
+  display: block;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  flex-shrink: 0;
 }
 
 .entry .dot::after {
@@ -221,9 +218,21 @@ body {
   border-radius: 50%;
   border: 1.5px dashed currentColor;
   opacity: 0.45;
+  pointer-events: none;
 }
 
+/* Positioned relative to .entry (now just the dot's own box) instead of as a
+   flex sibling, so a hidden label never inflates its entry's hoverable area
+   over a neighboring dot. pointer-events: none means hovering the visible
+   text is attributed to the parent .entry, not intercepted by the label
+   itself — which also stops an overlapping ghost label from ever stealing
+   hover meant for the dot underneath it. */
 .entry .label {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
   font-size: 13px;
   font-weight: 600;
   color: var(--ink-strong);

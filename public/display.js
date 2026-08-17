@@ -148,8 +148,12 @@ function computeLanes(type) {
   const entries = Array.from(dotsEl.querySelectorAll(`.entry--${type}`));
   const items = entries
     .map((el) => {
-      const rect = el.getBoundingClientRect();
-      return { el, left: rect.left, right: rect.right, lane: 0 };
+      // .entry's own box is just the dot (the label is positioned absolutely
+      // outside normal flow so it can't steal hover from a neighboring dot —
+      // see display.css) — so measure dot and label separately and union them.
+      const dotRect = el.querySelector('.dot').getBoundingClientRect();
+      const labelRect = el.querySelector('.label').getBoundingClientRect();
+      return { el, left: dotRect.left, right: labelRect.right, lane: 0 };
     })
     .sort((a, b) => a.left - b.left);
 
