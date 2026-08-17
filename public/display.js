@@ -48,11 +48,15 @@ const JITTER = 6; // px horizontal jitter so stacks don't look too rigid
 const LABEL_LIFETIME = 4500; // ms a new entry's text stays visible before fading to a plain dot
 const ARRIVAL_INTERVAL = 150; // ms between dots appearing — protects against a submission burst
 const DWELL_MS = 500; // ms of continuous hover before focus mode (dim + pair reveal) kicks in
+const EXPANDED_BASE_OFFSET = 50; // same starting distance from axis as compact mode
+const EXPANDED_SLOT_GAP = 30; // px between lanes when "show all text" is on
+const LABEL_MARGIN = 14; // px required between two labels sharing a lane before a new lane is used
 
 let months = [];
 const stacks = new Map(); // key -> count
 const byPerson = new Map(); // personId -> { highlight: el, lowlight: el }
 let counts = { highlight: 0, lowlight: 0 };
+let showAll = false;
 
 function monthKey(month, year) {
   return `${month}-${year}`;
@@ -95,6 +99,7 @@ function addEntry(entry, animate) {
   el.title = entry.text;
   el.style.left = `calc(${xPct}% + ${jitterX}px)`;
   el.style.top = `calc(50% + ${sign * yOffset}px)`;
+  el.dataset.compactTop = el.style.top;
   el.innerHTML = `<span class="dot dot--${entry.type === 'highlight' ? 'gold' : 'violet'}"></span><span class="label">${escapeHtml(entry.text)}</span>`;
   dotsEl.appendChild(el);
 
@@ -110,6 +115,12 @@ function addEntry(entry, animate) {
       requestAnimationFrame(() => el.classList.add('in'));
     });
     setTimeout(() => el.classList.add('settled'), LABEL_LIFETIME);
+    if (showAll) {
+      // Wait for the pop-in transition to finish before measuring its real
+      // width — mid-transition (still scaled down) rects would throw the
+      // lane assignment off.
+      setTimeout(() => applyExpandedLayoutAll(), 550);
+    }
   } else {
     // Entries already on the board when this display connected — no spotlight, just present.
     el.classList.add('in', 'settled');
@@ -125,6 +136,75 @@ function escapeHtml(str) {
   div.textContent = str;
   return div.innerHTML;
 }
+
+// "Show all text" layout: greedily assigns each entry to the innermost lane
+// (row) whose rightmost occupied edge doesn't collide with this entry's left
+// edge, given its ACTUAL rendered width (dot + label). This is the same
+// greedy interval-scheduling approach used for calendar/timeline label
+// packing — it guarantees no two labels in the same lane ever overlap.
+function computeLanes(type) {
+  const entries = Array.from(dotsEl.querySelectorAll(`.entry--${type}`));
+  const items = entries
+    .map((el) => {
+      const rect = el.getBoundingClientRect();
+      return { el, left: rect.left, right: rect.right, lane: 0 };
+    })
+    .sort((a, b) => a.left - b.left);
+
+  const laneRightEdges = [];
+  items.forEach((item) => {
+    let lane = laneRightEdges.findIndex((rightEdge) => item.left >= rightEdge + LABEL_MARGIN);
+    if (lane === -1) {
+      lane = laneRightEdges.length;
+      laneRightEdges.push(item.right);
+    } else {
+      laneRightEdges[lane] = item.right;
+    }
+    item.lane = lane;
+  });
+
+  return { items, laneCount: laneRightEdges.length };
+}
+
+function applyExpandedLayoutAll() {
+  const highlightLanes = computeLanes('highlight');
+  const lowlightLanes = computeLanes('lowlight');
+  const maxLanes = Math.max(highlightLanes.laneCount, lowlightLanes.laneCount, 1);
+
+  // Shrink the gap between lanes if needed so the tallest stack still fits
+  // within the timeline's actual height, instead of overflowing into the
+  // headline or legend.
+  const available = Math.max(timelineEl.clientHeight / 2 - EXPANDED_BASE_OFFSET - 24, 0);
+  const gap = maxLanes > 1 ? Math.min(EXPANDED_SLOT_GAP, available / (maxLanes - 1)) : EXPANDED_SLOT_GAP;
+  const finalGap = Math.max(gap, 16); // never compress enough for dots themselves to touch
+
+  [
+    { data: highlightLanes, sign: -1 },
+    { data: lowlightLanes, sign: 1 },
+  ].forEach(({ data, sign }) => {
+    data.items.forEach((item) => {
+      const yOffset = EXPANDED_BASE_OFFSET + item.lane * finalGap;
+      item.el.style.top = `calc(50% + ${sign * yOffset}px)`;
+    });
+  });
+}
+
+function applyCompactLayout() {
+  dotsEl.querySelectorAll('.entry').forEach((el) => {
+    if (el.dataset.compactTop) el.style.top = el.dataset.compactTop;
+  });
+}
+
+const showAllToggle = document.getElementById('show-all-toggle');
+showAllToggle.addEventListener('change', () => {
+  showAll = showAllToggle.checked;
+  dotsEl.classList.toggle('show-all', showAll);
+  if (showAll) {
+    applyExpandedLayoutAll();
+  } else {
+    applyCompactLayout();
+  }
+});
 
 // New submissions land in a queue and are revealed one at a time, so a burst of
 // simultaneous submissions (everyone hitting submit at once) still animates in

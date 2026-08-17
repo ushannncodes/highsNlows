@@ -14,7 +14,7 @@ body {
   color: #fdfaf3;
   padding: 10px 5vw;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   font-size: 13px;
   letter-spacing: 0.03em;
@@ -22,6 +22,53 @@ body {
 
 .topstrip-counts b {
   font-weight: 700;
+}
+
+.show-all-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.show-all-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch {
+  position: relative;
+  width: 34px;
+  height: 19px;
+  border-radius: 999px;
+  background: rgba(253, 250, 243, 0.25);
+  border: 1.5px dashed rgba(253, 250, 243, 0.7);
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fdfaf3;
+  transition: transform 0.2s ease;
+}
+
+.show-all-toggle input:checked + .switch {
+  background: var(--gold);
+  border-color: var(--ink-strong);
+}
+
+.show-all-toggle input:checked + .switch .switch-thumb {
+  transform: translateX(15px);
+  background: var(--ink-strong);
 }
 
 .live-dot {
@@ -116,7 +163,8 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease,
+    top 0.4s ease;
   z-index: 1;
   cursor: inherit;
 }
@@ -209,6 +257,20 @@ body {
 .entry.is-twin .dot::after,
 .entry.is-focused .dot::after {
   opacity: 0.9;
+}
+
+/* "Show all text" toggle — overrides the settled/fade behavior entirely so
+   every label stays visible. !important is deliberate here: this is a global
+   override switch and needs to win regardless of the settled/hover/twin
+   specificity ordering above. */
+.dots.show-all .entry .label {
+  opacity: 1 !important;
+  background: rgba(245, 246, 248, 0.7);
+  box-shadow: 0 0 0 6px rgba(245, 246, 248, 0.7);
+}
+
+.dots.show-all .entry .dot::after {
+  opacity: 0.7;
 }
 
 .dot--gold {
