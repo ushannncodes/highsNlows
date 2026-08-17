@@ -218,7 +218,10 @@ body {
   border-radius: 50%;
   border: 1.5px dashed currentColor;
   opacity: 0.45;
-  pointer-events: none;
+  /* pointer-events left at its default (auto) deliberately — this ring is
+     the actual visible target people aim for, so it should count as part of
+     the dot's hoverable area, unlike the label (which is pointer-events:
+     none because it can silently overlap a neighboring dot). */
 }
 
 /* Positioned relative to .entry (now just the dot's own box) instead of as a
